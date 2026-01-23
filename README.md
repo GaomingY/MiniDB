@@ -31,7 +31,7 @@ Table内有序的方案设计违背的追加写无脑往后加数据的设定，
 这样的设计还会带来三个问题：内存崩溃了怎么办？flush和用户的write产生资源冲突怎么办？MemTable内部采用什么样的数据结构实现？
 
 ## MemTable应该解决的问题 ##
-![lsm-tree architecture](https://github.com/GaomingY/MiniDB/blob/main/LSM-Tree.png)
+![lsm-tree](https://github.com/GaomingY/MiniDB/blob/main/LSM-Tree.png)
 ### WAL ###
 使用WAL(Write-ahead log)预写日志技术：用户的写请求首先会生成一个write-ahead log保存在磁盘里，之后再将数据写入到内存的MemTable中，这样即使内存崩溃了，也可以根据日志内容重建数据
 WAL采用追加写方式，属于磁盘顺序IO，不会产生性能瓶颈，而且每当一个MemTable溢写到磁盘中后，它对应的日志记录就会删除，WAL也不会带来很高的存储开销
@@ -47,6 +47,7 @@ readonly MemTable执行flush操作
 ## SSTable应该解决的问题 ##
 MemTable解决的问题实际上都是属于第二点，数据有序存储方面。而第一点，压缩合并，就是由SSTable来完成。
 实际上，用户写的数据只会写入activate MemTable中，因此，在磁盘中的SSTable都是old Table，都是可以进行压缩合并的。
+
 
 
 

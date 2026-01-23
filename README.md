@@ -30,15 +30,18 @@ Table内有序的方案设计违背的追加写无脑往后加数据的设定，
 
 这样的设计还会带来三个问题：内存崩溃了怎么办？flush和用户的write产生资源冲突怎么办？MemTable内部采用什么样的数据结构实现？
 
-## WAL ##
+## MemTable应该解决的问题 ##
+### WAL ###
 使用WAL(Write-ahead log)预写日志技术：用户的写请求首先会生成一个write-ahead log保存在磁盘里，之后再将数据写入到内存的MemTable中，这样即使内存崩溃了，也可以根据日志内容重建数据
 WAL采用追加写方式，属于磁盘顺序IO，不会产生性能瓶颈，而且每当一个MemTable溢写到磁盘中后，它对应的日志记录就会删除，WAL也不会带来很高的存储开销
 
-## 只读分层 ##
+### 只读分层 ###
 将MemTable进一步划分成activate MemTable和readonly MemTable，用户的写请求的数据都只会写入activate MemTable中，当MemTable容量满了之后就会变成readonly MemTable，之后将不会再有新数据写入，
 readonly MemTable执行flush操作
 这样一来，用户的write操作在activate MemTable中执行，存储引擎的flush操作在readonly MemTable中执行，就完美解决了资源争用的问题
 
-## SkipList ##
+### SkipList ###
 讲了这么多MemTable的设计细节，那么应该用什么样的数据结构来实现它呢？有两个候选者，红黑树和跳表(SkipList)，二者的性能相当，但跳表的实现更为简单，加锁操作也更容易，所以基于LSM-Tree的存储引擎基本上都使用跳表作为MemTable的实现方法
+
+## SSTable应该解决的问题 ##
 

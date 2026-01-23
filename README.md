@@ -40,4 +40,5 @@ readonly MemTable执行flush操作
 这样一来，用户的write操作在activate MemTable中执行，存储引擎的flush操作在readonly MemTable中执行，就完美解决了资源争用的问题
 
 ## SkipList ##
+讲了这么多MemTable的设计细节，那么应该用什么样的数据结构来实现它呢？有两个候选者，红黑树和跳表(SkipList)，二者的性能相当，但跳表的实现更为简单，加锁操作也更容易，所以基于LSM-Tree的存储引擎基本上都使用跳表作为MemTable的实现方法
 

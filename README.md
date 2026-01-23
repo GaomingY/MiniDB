@@ -46,3 +46,4 @@ readonly MemTable执行flush操作
 ## SSTable应该解决的问题 ##
 MemTable解决的问题实际上都是属于第二点，数据有序存储方面。而第一点，压缩合并，就是由SSTable来完成。
 实际上，用户写的数据只会写入activate MemTable中，因此，在磁盘中的SSTable都是old Table，都是可以进行压缩合并的。
+

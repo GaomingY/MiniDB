@@ -45,11 +45,22 @@ readonly MemTable执行flush操作
 讲了这么多MemTable的设计细节，那么应该用什么样的数据结构来实现它呢？有两个候选者，红黑树和跳表(SkipList)，二者的性能相当，但跳表的实现更为简单，加锁操作也更容易，所以基于LSM-Tree的存储引擎基本上都使用跳表作为MemTable的实现方法
 
 ## SSTable应该解决的问题 ##
-MemTable解决的问题实际上都是属于第二点，数据有序存储方面。而第一点，压缩合并，就是由SSTable来完成。
-实际上，用户写的数据只会写入activate MemTable中，因此，在磁盘中的SSTable都是old Table，都是可以进行压缩合并的。
+MemTable解决的问题实际上都是属于第二点，数据有序存储方面。而第一点，压缩合并，就是由SSTable来完成
+实际上，用户写的数据只会写入activate MemTable中，因此，在磁盘中的SSTable都是old Table，都是可以进行压缩合并的
 
-每一个SSTable天然具备两个优势：SSTable内部不存在重复KV对数据，SSTable内部的KV对数据是有序的。但不同Table之间的数据可能有重复，而且不是有序的。
+每一个SSTable天然具备两个优势：SSTable内部不存在重复KV对数据，SSTable内部的KV对数据是有序的。但不同Table之间的数据可能有重复，而且不是有序的
 因此，在实现SSTable的compact操作时必须要解决这两个问题
+SStable具备以下特点：每向下一层的SSTable的容量都会增大一定倍数；level0比较特殊，这层只有局部有序和唯一，也就是单个table内，但level1到levelk中单层之内都没有冗余数据且整层全局有序
+
+由于SSTable到了深层之后容量就会很大，造成读操作非常笨重，因此，SSTable进一步做了一些优化
+
+### 拆分成block ###
+SSTable内部进一步把table拆分成多个block，记录了每个block的k_min和k_max以及块中每行的k_min和k_max，其次LSM-Tree还记录了不同level中的SSTable中的k_min和k_max
+这样记录有助于不同table之间的归并排序
+
+### bloomfilter ###
+使用bloomfilter可以在O(1)时间内快速判断一个K是否存在于当前table中，但bloomfilter有假阳性的缺陷，所以判断出来不存在的k一定不存在，但判断出来存在的k却有可能不存在，因此需要引入更多的机制进行double check
+
 
 
 

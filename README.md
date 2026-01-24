@@ -63,6 +63,8 @@ SSTable内部进一步把table拆分成多个block，记录了每个block的k_mi
 
 # 读写流程 #
 最后，用两张图来展示LSM-Tree的读写流程
+![read progress](https://github.com/GaomingY/MiniDB/blob/main/image/read.png)
+
 
 
 

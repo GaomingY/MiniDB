@@ -61,7 +61,8 @@ SSTable内部进一步把table拆分成多个block，记录了每个block的k_mi
 ### bloomfilter ###
 使用bloomfilter可以在O(1)时间内快速判断一个K是否存在于当前table中，但bloomfilter有假阳性的缺陷，所以判断出来不存在的k一定不存在，但判断出来存在的k却有可能不存在，因此需要引入更多的机制进行double check
 
-
+# 读写流程 #
+最后，用两张图来展示LSM-Tree的读写流程
 
 
 

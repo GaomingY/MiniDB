@@ -67,7 +67,7 @@ SSTable内部进一步把table拆分成多个block，记录了每个block的k_mi
 ![write progress](https://github.com/GaomingY/MiniDB/blob/main/image/write.png)
 
 # 优化方法 #
-为了能更加充分地利用存储空间，MiniDB采取了一系列数据压缩的方法来减少存储资源占用，包括变长整数压缩和前缀压缩
+为了能更加充分地利用存储空间，MiniDB采取了一系列数据压缩的方法来减少存储资源占用，包括变长整数压缩和前缀压缩，还有特有的内存池管理方法
 
 ## 变长整数压缩 ##
 因为这个压缩方法主要是针对正整数进行压缩的，所以应用到MiniDB中之后就是对table中存储的Key和Value的长度进行压缩
@@ -77,6 +77,10 @@ SSTable内部进一步把table拆分成多个block，记录了每个block的k_mi
 
 ## 前缀压缩 ##
 
+## 内存池 ##
+MiniDB在分配内存空间时，不是像new或者malloc那样为每个对象都分配一个内存空间，而是一次性分配一大块内存空间(一个内存块4KB)，当外部请求小对象时，MiniDB只是简单移动这个大块内存的指针，这个操作只需要几条指令，时延在纳秒级别，降低了系统的开销
+对于大于内存块1/4大小的大对象的分配，MiniDB是直接为其单独开辟一块内存空间，避免了为大对象分配整个内存块导致的内存碎片问题
+最后，MiniDB的内存管理器不允许单独为某个对象释放内存，只有active MemTable写满成为readonly MemmTable并落盘之后才会一次性释放所有block
 
 
 

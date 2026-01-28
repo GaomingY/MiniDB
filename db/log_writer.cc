@@ -52,20 +52,19 @@ namespace minidb{
                 RecordType type;
 
                 const bool end = (left == fragment_lenngth);
-                if (begin && end) {
+                if (begin && end){
                     type = kFullType;
-                  } else if (begin) {
+                }else if (begin){
                     type = kFirstType;
-                  } else if (end) {
+                }else if (end){
                     type = kLastType;
-                  } else {
+                }else{
                     type = kMiddleType;
-                  }
-              
-                  s = EmitPhysicalRecord(type, ptr, fragment_length);
-                  ptr += fragment_length;
-                  left -= fragment_length;
-                  begin = false;
+                }
+                s = EmitPhysicalRecord(type, ptr, fragment_lenngth);
+                ptr += fragment_lenngth;
+                left -= fragment_lenngth;
+                begin = false;
             } while(s.ok() && left > 0);
             return s;
         }
